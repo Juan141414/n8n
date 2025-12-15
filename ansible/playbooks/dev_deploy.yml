@@ -1,0 +1,51 @@
+---
+- name: Deploy Apache on servidores
+  hosts: servidores
+  become: yes
+  tasks:
+    - name: Install httpd package
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable httpd service
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Deploy vhost.conf template
+      ansible.builtin.template:
+        src: templates/vhost.conf.j2
+        dest: /etc/httpd/conf.d/vhost.conf
+      notify: Restart httpd
+
+    - name: Create web directory based on hostname
+      ansible.builtin.file:
+        path: "/var/www/vhosts/{{ inventory_hostname }}"
+        state: directory
+
+    - name: Copy index.html to web directory
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: "/var/www/vhosts/{{ inventory_hostname }}/index.html"
+
+    - name: Configure firewall to allow http service
+      ansible.builtin.firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Configure firewall to allow https service
+      ansible.builtin.firewalld:
+        service: https
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+  handlers:
+    - name: Restart httpd
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
