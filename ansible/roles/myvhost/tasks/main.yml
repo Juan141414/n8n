@@ -1,0 +1,48 @@
+---
+- name: Ensure Apache is installed
+  ansible.builtin.package:
+    name: apache2
+    state: present
+
+- name: Ensure Apache service is running and enabled
+  ansible.builtin.service:
+    name: apache2
+    state: started
+    enabled: true
+
+- name: Create virtual host configuration file
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/apache2/sites-available/{{ vhost_domain }}.conf
+  notify: Restart Apache
+
+- name: Enable virtual host
+  ansible.builtin.command: a2ensite {{ vhost_domain }}.conf
+  args:
+    creates: /etc/apache2/sites-enabled/{{ vhost_domain }}.conf
+  notify: Restart Apache
+
+- name: Ensure DocumentRoot directory exists
+  ansible.builtin.file:
+    path: "{{ vhost_document_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy index.html for testing
+  ansible.builtin.copy:
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>Welcome to {{ vhost_domain }}!</title>
+      </head>
+      <body>
+      <h1>Success! The {{ vhost_domain }} virtual host is working!</h1>
+      </body>
+      </html>
+    dest: "{{ vhost_document_root }}/index.html"
+    owner: www-data
+    group: www-data
+    mode: '0644'
