@@ -1,8 +1,0 @@
----
-- name: Create empty test file on servidores
-  hosts: servidores
-  tasks:
-    - name: Create empty file /tmp/testfile.txt
-      ansible.builtin.file:
-        path: /tmp/testfile.txt
-        state: touch
