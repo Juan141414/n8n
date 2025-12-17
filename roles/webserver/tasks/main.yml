@@ -1,0 +1,36 @@
+---
+- name: Install httpd
+  yum:
+    name: httpd
+    state: present
+
+- name: Enable and start httpd
+  service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Create web root directory
+  file:
+    path: /var/www/web
+    state: directory
+
+- name: Copy index.html
+  copy:
+    dest: /var/www/web
+    content: "<html><body><h1>Hello, World!</h1></body></html>"
+
+- name: Setup apache VirtualHost
+  template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/vhost.conf
+
+- name: Allow HTTP through firewall
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  firewalld:
+    state: reloaded
