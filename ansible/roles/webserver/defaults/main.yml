@@ -1,0 +1,3 @@
+---
+# Defaults for webserver role
+webserver_port: 80
