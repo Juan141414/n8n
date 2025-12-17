@@ -1,9 +1,0 @@
-<VirtualHost *:80>
-    ServerName {{ vhost_server_name }}
-    DocumentRoot {{ vhost_document_root }}
-
-    <Directory {{ vhost_document_root }}>
-        Require all granted
-        Options -Indexes
-    </Directory>
-</VirtualHost>

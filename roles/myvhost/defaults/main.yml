@@ -1,4 +1,0 @@
----
-# Default variables for myvhost role
-vhost_server_name: www.example.com
-vhost_document_root: /var/www/html
