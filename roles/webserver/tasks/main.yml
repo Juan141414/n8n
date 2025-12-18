@@ -1,0 +1,45 @@
+- name: Install httpd package
+  yum:
+    name: httpd
+    state: present
+  become: yes
+
+- name: Ensure web directory exists
+  file:
+    path: /var/www/web
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+  become: yes
+
+- name: Deploy index.html
+  copy:
+    src: index.html
+    dest: /var/www/web/index.html
+    owner: apache
+    group: apache
+    mode: '0644'
+  become: yes
+
+- name: Deploy VirtualHost configuration
+  template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/webapp.conf
+  notify: restart httpd
+  become: yes
+
+- name: Start and enable httpd service
+  service:
+    name: httpd
+    state: started
+    enabled: true
+  become: yes
+
+- name: Configure firewalld to allow HTTP traffic
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  become: yes
