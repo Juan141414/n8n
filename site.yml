@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    server_name: example.com
+    document_root: /var/www/html
+  roles:
+    - role: myvhost
